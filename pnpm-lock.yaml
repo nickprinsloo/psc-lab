@@ -1,0 +1,53 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@cdktf/provider-google':
+        specifier: ^14.17.1
+        version: 14.17.1(cdktf@0.20.11(constructs@10.4.2))(constructs@10.4.2)
+      cdktf:
+        specifier: ^0.20.11
+        version: 0.20.11(constructs@10.4.2)
+      constructs:
+        specifier: ^10.4.2
+        version: 10.4.2
+
+packages:
+
+  '@cdktf/provider-google@14.17.1':
+    resolution: {integrity: sha512-bOnmmFaDB9aM7G3McF+nN7q9EG9m+j/zz2U2drfDVmuesRMiZkcQUb4XIog5A6yMq/3sVQBFLPAy2y9Cvscp1Q==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      cdktf: ^0.20.0
+      constructs: ^10.3.0
+
+  cdktf@0.20.11:
+    resolution: {integrity: sha512-YoubhokJ8s60WNrP2+cpQinb0DdMXlaFFDnPPv2A/tcRkzkwO9dWuMiXhhA0XlBJ1qA5pibaonu9Cc4B9JgKuQ==}
+    peerDependencies:
+      constructs: ^10.3.0
+    bundledDependencies:
+      - archiver
+      - json-stable-stringify
+      - semver
+
+  constructs@10.4.2:
+    resolution: {integrity: sha512-wsNxBlAott2qg8Zv87q3eYZYgheb9lchtBfjHzzLHtXbttwSrHPs1NNQbBrmbb1YZvYg2+Vh0Dor76w4mFxJkA==}
+
+snapshots:
+
+  '@cdktf/provider-google@14.17.1(cdktf@0.20.11(constructs@10.4.2))(constructs@10.4.2)':
+    dependencies:
+      cdktf: 0.20.11(constructs@10.4.2)
+      constructs: 10.4.2
+
+  cdktf@0.20.11(constructs@10.4.2):
+    dependencies:
+      constructs: 10.4.2
+
+  constructs@10.4.2: {}

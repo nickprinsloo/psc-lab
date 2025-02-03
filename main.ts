@@ -20,7 +20,7 @@ class StackA extends TerraformStack {
     super(scope, id);
 
     new GoogleProvider(this, "google", {
-      project: "PROJECT-A",
+      project: "project-a",
       region,
     });
 
@@ -39,8 +39,8 @@ class StackA extends TerraformStack {
     /**
      * The subnet that contains the apps that we want to connect to from outside the VPC and project
      */
-    const subnetApp = new ComputeSubnetwork(this, "subnet-app", {
-      name: "subnet-app",
+    const subnetApp = new ComputeSubnetwork(this, "app-subnet", {
+      name: "app-subnet",
       network: network.name,
       region,
       ipCidrRange: "10.0.0.0/24",
@@ -51,8 +51,8 @@ class StackA extends TerraformStack {
      * This is a subnet required to create an internal regional application load balancer
      * It wil automatically be used by any internal regional application load balancer created in the VPC
      */
-    new ComputeSubnetwork(this, "subnet-proxy", {
-      name: "subnet-proxy",
+    new ComputeSubnetwork(this, "proxy-subnet", {
+      name: "proxy-subnet",
       network: network.name,
       region,
       ipCidrRange: "10.0.1.0/24",
@@ -65,8 +65,8 @@ class StackA extends TerraformStack {
      * It is the entry point for traffic from the consumer project to the private services in the VPC
      * PSC -> PSC Subnet -> Application Subnet -> Load Balancer -> Cloud Run
      */
-    const subnetPSC = new ComputeSubnetwork(this, "subnet-psc", {
-      name: "subnet-psc",
+    const subnetPSC = new ComputeSubnetwork(this, "psc-subnet", {
+      name: "psc-subnet",
       network: network.name,
       region,
       ipCidrRange: "10.0.2.0/24",
@@ -133,8 +133,8 @@ class StackA extends TerraformStack {
       }
     );
 
-    const urlMap = new ComputeRegionUrlMap(this, "url-map", {
-      name: "url-map",
+    const loadbalancer = new ComputeRegionUrlMap(this, "loadbalancer", {
+      name: "loadbalancer",
       region,
       defaultService: backendService.id,
     });
@@ -142,7 +142,7 @@ class StackA extends TerraformStack {
     const httpProxy = new ComputeRegionTargetHttpProxy(this, "http-proxy", {
       name: "http-proxy",
       region,
-      urlMap: urlMap.id,
+      urlMap: loadbalancer.id,
     });
 
     const forwardingRule = new ComputeForwardingRule(this, "forwarding-rule", {
@@ -162,7 +162,7 @@ class StackA extends TerraformStack {
      * Private service connection resources
      **************************************************/
 
-    const computeService = new ComputeServiceAttachment(
+    const serviceAttachment = new ComputeServiceAttachment(
       this,
       "psc-service-attachment",
       {
@@ -201,7 +201,7 @@ class StackA extends TerraformStack {
       region,
       network: "default",
       subnetwork: "default",
-      target: computeService.id,
+      target: serviceAttachment.id,
       project: "PROJECT-B",
       loadBalancingScheme: "",
       ipAddress: consumerIP.id,

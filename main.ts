@@ -24,11 +24,21 @@ class StackA extends TerraformStack {
       region,
     });
 
+    /**************************************************
+     * Publisher side - Project A
+     **************************************************/
+
+    /**
+     * The VPC that contains private services we want to connect to from another project and VPC
+     */
     const network = new ComputeNetwork(this, "network-a", {
       name: "network-a",
       autoCreateSubnetworks: false,
     });
 
+    /**
+     * The subnet that contains the apps that we want to connect to from outside the VPC and project
+     */
     const subnetApp = new ComputeSubnetwork(this, "subnet-app", {
       name: "subnet-app",
       network: network.name,
@@ -37,6 +47,10 @@ class StackA extends TerraformStack {
       purpose: "PRIVATE",
     });
 
+    /**
+     * This is a subnet required to create an internal regional application load balancer
+     * It wil automatically be used by any internal regional application load balancer created in the VPC
+     */
     new ComputeSubnetwork(this, "subnet-proxy", {
       name: "subnet-proxy",
       network: network.name,
@@ -46,6 +60,11 @@ class StackA extends TerraformStack {
       role: "ACTIVE",
     });
 
+    /**
+     * This is a subnet required to create a private service connection
+     * It is the entry point for traffic from the consumer project to the private services in the VPC
+     * PSC -> PSC Subnet -> Application Subnet -> Load Balancer -> Cloud Run
+     */
     const subnetPSC = new ComputeSubnetwork(this, "subnet-psc", {
       name: "subnet-psc",
       network: network.name,
@@ -54,6 +73,9 @@ class StackA extends TerraformStack {
       purpose: "PRIVATE_SERVICE_CONNECT",
     });
 
+    /**
+     * A demo Cloud Run service that is private and only accessible from inside Project A (the publisher)
+     */
     const service = new CloudRunV2Service(this, "service", {
       name: "service",
       location: region,
@@ -65,12 +87,19 @@ class StackA extends TerraformStack {
       },
     });
 
+    /**
+     * Allow all users to invoke the service
+     */
     new CloudRunV2ServiceIamMember(this, "invoker", {
       name: service.name,
       location: region,
       role: "roles/run.invoker",
       member: "allUsers",
     });
+
+    /**************************************************
+     * Load balancer resources
+     **************************************************/
 
     new ComputeAddress(this, "loadbalancer-address", {
       name: "loadbalancer-address",
@@ -116,6 +145,10 @@ class StackA extends TerraformStack {
       urlMap: urlMap.id,
     });
 
+    /**************************************************
+     * Private service connection resources
+     **************************************************/
+
     const forwardingRule = new ComputeForwardingRule(this, "forwarding-rule", {
       name: "forwarding-rule",
       region: region,
@@ -141,12 +174,16 @@ class StackA extends TerraformStack {
         consumerAcceptLists: [
           {
             networkUrl:
-              "https://www.googleapis.com/compute/v1/projects/PROJECT-B/global/networks/default",
+              "https://www.googleapis.com/compute/v1/projects/PROJECT-B/global/networks/default", // This is the URL of the subnet in the consumer project
             connectionLimit: 10,
           },
         ],
       }
     );
+
+    /**************************************************
+     * Consumer side - Project B
+     **************************************************/
 
     const consumerIP = new ComputeAddress(this, "consumer-ip", {
       name: "consumer-ip",

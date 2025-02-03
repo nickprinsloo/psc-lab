@@ -145,10 +145,6 @@ class StackA extends TerraformStack {
       urlMap: urlMap.id,
     });
 
-    /**************************************************
-     * Private service connection resources
-     **************************************************/
-
     const forwardingRule = new ComputeForwardingRule(this, "forwarding-rule", {
       name: "forwarding-rule",
       region: region,
@@ -160,6 +156,10 @@ class StackA extends TerraformStack {
       subnetwork: subnetApp.name,
       networkTier: "PREMIUM",
     });
+
+    /**************************************************
+     * Private service connection resources
+     **************************************************/
 
     const computeService = new ComputeServiceAttachment(
       this,

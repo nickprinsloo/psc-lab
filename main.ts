@@ -101,7 +101,7 @@ class StackA extends TerraformStack {
      * Load balancer resources
      **************************************************/
 
-    new ComputeAddress(this, "loadbalancer-address", {
+    const loadbalancerAddress = new ComputeAddress(this, "loadbalancer-address", {
       name: "loadbalancer-address",
       region,
       subnetwork: subnetApp.name,
@@ -154,6 +154,7 @@ class StackA extends TerraformStack {
       target: httpProxy.id,
       network: network.name,
       subnetwork: subnetApp.name,
+      ipAddress: loadbalancerAddress.id,
       networkTier: "PREMIUM",
     });
 
